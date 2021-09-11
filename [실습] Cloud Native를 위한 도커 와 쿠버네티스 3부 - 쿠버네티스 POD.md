@@ -17,19 +17,19 @@ metadata:
   name: liveness-http
 spec:
   containers:
-  - name: liveness
-    image: k8s.gcr.io/liveness
-    args:
-    - /server
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 8080
-        httpHeaders:
-        - name: Custom-Header
-          value: Awesome
-      initialDelaySeconds: 3
-      periodSeconds: 3
+    - name: liveness
+      image: k8s.gcr.io/liveness
+      args:
+        - /server
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+          httpHeaders:
+            - name: Custom-Header
+              value: AWESOME
+        initialDelaySeconds: 3
+        periodSeconds: 3
 ```
 
 K8s.gcr.io/liveness 이미지는 liveness 테스트를 위해 만들어진 이미지 입니다. Go 언어로 작성 되었으며, 처음 10초 동안은 정상적인 서비스를 하지만, 10초 후에는 에러를 발생 시킵니다. 자세한 사항은 [URL](https://github.com/kubernetes/kubernetes/blob/master/test/images/agnhost/liveness/server.go) 을 참고 하세요
@@ -692,23 +692,24 @@ kubectl rollout history deployment.apps/nginx-deployment
 
 ```{bash}
 kubectl rollout undo deployment.apps/nginx-dp --to-revision=1
+kubectl rollout undo deployment.apps/nginx-dp
 ```
 
 
 
-###Deployment ScaleOut
+### Deployment ScaleOut
 
 ```{bash}
 kubectl edit deploy goapp-deployment
 
-kubectl scale deploy nginx-deployment
+kubectl scale deploy nginx-deployment --replicas=4
 goapp-deployment-5857594fbb-2hhnv   1/1     Running   0          32m
 goapp-deployment-5857594fbb-6s9lx   1/1     Running   0          6s
 goapp-deployment-5857594fbb-7nqsg   1/1     Running   0          32m
 goapp-deployment-5857594fbb-9b28s   1/1     Running   0          32m
 ```
 
-###deployment 확인 하기
+### deployment 확인 하기
 
 - 롤아웃 확인
 
@@ -722,9 +723,13 @@ kubectl rollout status deployment.v1.apps/nginx-deployment
 kubectl describe deploy nginx-deployment
 ```
 
+
+
+
+
 ###  연습문제
 
-
+1. 
 
 ## StatefullSet (GCP 수행)
 

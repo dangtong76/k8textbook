@@ -7,10 +7,10 @@
 - 컨테이너 생성 : run/v1 으로 수행 합니다.
 
   ```{bash}
-  # POD 및 Replication Controller 생성 (향후 버전에서 deprecated 될 예정)
-  $ kubectl run goapp-project --image=dangtong/goapp --port=8080 --generator=run/v1
   # POD 만 생성
-  $ kubectl run goapp-project --image=dangtong/goapp --port=8080 --generator=run-pod/v1
+  kubectl run goapp-project --image=dangtong/goapp --port=8080 
+  kubectl run nginx --image=nginx --dry-run=client
+  kubectl run -i -t busybox --image=busybox --restart=Never
   ```
 
   > generator 를 run/v1 으로 수행 할 경우 내부적으로 goapp-project-{random-String} 이라는 컨테이너를 만들면서 goapp-project- 이름의 replication controller 도 생기게 됩니다.
@@ -751,7 +751,10 @@ weave-net-7j7mn                          2/2     Running   0          17d
 - YAML 파일 작성 : first-namespace.yaml 이름으로 파일 작성
 
 ```{bash}
-apiVersion: v1kind: Namespacemetadata:  name: first-namespace
+apiVersion: v1
+kind: Namespace
+metadata: 
+  name: first-namespace
 ```
 
 - YAML 파일을 이용한 네이스페이스 생성
@@ -806,7 +809,7 @@ kubectl get pod -n first-namespace
 NAME        READY   STATUS    RESTARTS   AGEgoapp-pod   1/1     Running   0          12h
 ```
 
-###8.5 POD 삭제
+###  POD 삭제
 
 ```{bash}
 'kubectl' delete pod goapp-pod-memhigh

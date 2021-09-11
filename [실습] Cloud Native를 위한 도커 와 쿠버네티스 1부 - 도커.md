@@ -43,17 +43,17 @@ Docker Desktop for Windows : https://hub.docker.com/editions/community/docker-ce
 
 도커 파일 내에서 사용 가능한 명령어
 
-| 명령           | 설명                 | 명령            | 설명                       |
-| -------------- | -------------------- | --------------- | -------------------------- |
-| **FROM**       | 베이스 이미지 지정   | **VOLUME**      | 볼륨 마운트                |
-| **RUN**        | 명령실행             | **USER**        | 사용자 지정                |
-| **CMD**        | 컨테이너 실행 명령   | **WORKDIR**     | 작업 디렉토리              |
-| **LABEL**      | 라벨 설정            | **ONBUILD**     | Dockerfile 내의 변수       |
-| **EXPOSE**     | 포트 익스포트        | **STOPSIGNAL**  | 빌드 완료 후 실행되는 명령 |
-| **ENV**        | 환경변수             | **HEALTHCHECK** | 시스템 콜 시그널 설정      |
-| **ADD**        | 파일/디렉토리 추가   | **SHELL**       | 기본 쉘 설정               |
-| **COPY**       | 파일 복사            |                 |                            |
-| **ENTRYPOINT** | 컨테이너 실행 명령사 |                 |                            |
+| 명령           | 설명               | 명령            | 설명                       |
+| -------------- | ------------------ | --------------- | -------------------------- |
+| **FROM**       | 베이스 이미지 지정 | **VOLUME**      | 볼륨 마운트                |
+| **RUN**        | 명령실행           | **USER**        | 사용자 지정                |
+| **CMD**        | 컨테이너 실행 명령 | **WORKDIR**     | 작업 디렉토리              |
+| **LABEL**      | 라벨 설정          | **ONBUILD**     | Dockerfile 내의 변수       |
+| **EXPOSE**     | 포트 익스포트      | **STOPSIGNAL**  | 빌드 완료 후 실행되는 명령 |
+| **ENV**        | 환경변수           | **HEALTHCHECK** | 시스템 콜 시그널 설정      |
+| **ADD**        | 파일/디렉토리 추가 | **SHELL**       | 기본 쉘 설정               |
+| **COPY**       | 파일 복사          |                 |                            |
+| **ENTRYPOINT** | 컨테이너 실행 명령 |                 |                            |
 
 ####  도커 hub 사용을 위한 계정생성
 
@@ -122,7 +122,6 @@ hostname_finder 라는 폴더를 만들고 그 아래 main.go 및 Dockerfiles 2�
 
 ```{go}
 package main
-
 import (
 	"fmt"
 	"os"
