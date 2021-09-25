@@ -1290,6 +1290,10 @@ curl https://localhost:8443 -k -v
 
 ###  Mysql 구성하기
 
+
+
+
+
 ####  서비스 구성
 
 파일명 : mysql-svc.yaml
@@ -1307,7 +1311,7 @@ spec:
   selector:
     app: wordpress
     tier: mysql
-  clusterIP: None
+  # clusterIP: None
 ```
 
 > 해드리스(Headless) 서비스를 만들면 명시적인 클러스터 IP 가 할당되지 않고 라우팅 됩니다. 헤드리스 서비스는 다른 네임스페이스의 서비스에 라우팅이 필요 할때도 유용 합니다. 헤드리스 서비스의 ExternalName 을 사용하 다른 네임스페이스의 서비스를 연결 할 수 있습니다. 원래 ExternalName은 K8s 외부의 서비스를 K8s 내부 서비스인 것처럼 참조할수 있게 해주는 기능 입니다.
