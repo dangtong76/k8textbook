@@ -2,7 +2,7 @@
 
 ## nodes app 생성
 
-###  app.ja 소스코드 작성
+###  app.js 소스코드 작성
 
 ```{javascript}
 const http = require('http');
@@ -149,7 +149,7 @@ kubectl delete svc nodeapp-service
 
 ## NodePort
 
-###   yaml 을 이용한 NodePort 생성 (GCP 에서 수행 하기)clear
+###   yaml 을 이용한 NodePort 생성 (GCP 에서 수행 하기)
 
 ```{yaml}
 apiVersion: v1
@@ -519,7 +519,5 @@ $ curl -k https://nginx.acorn.com
 $ curl -k https://goapp.acorn.com
 ```
 
-##  Headless Service
 
-###   Headless  Service 생성
 

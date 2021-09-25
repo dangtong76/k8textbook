@@ -204,7 +204,9 @@ $ kubectl apply -f ./gitvolume-deploy.yaml
 ####  Service 생성
 
 ```{bash}
-apiVersion: v1kind: Servicemetadata:  name: gitvolume-lbspec:  selector:    app: nginx  ports:    - port: 80      targetPort: 80  type: LoadBalancer
+apiVersion: v1
+kind: Service
+metadata:  name: gitvolume-lbspec:  selector:    app: nginx  ports:    - port: 80      targetPort: 80  type: LoadBalancer
 ```
 
 
@@ -222,7 +224,8 @@ $ gcloud container clusters list
 - Disk 생성
 
 ```{bash}
-$ gcloud compute disks create --size=16GiB --zone asia-northeast1-b  mongodb# 삭제# gcloud compute disks delete mongodb --zone asia-northeast1-b
+$ gcloud compute disks create --size=16GiB --zone asia-northeast1-b  mongodb
+#삭제 gcloud compute disks delete mongodb --zone asia-northeast1-b
 ```
 
 ####  Pod 생성을 위한 yaml 파일 작성
@@ -230,7 +233,25 @@ $ gcloud compute disks create --size=16GiB --zone asia-northeast1-b  mongodb# �
 - 파일명 : gce-pv.yaml
 
 ```{yaml}
-apiVersion: v1kind: Podmetadata:  name: mongodbspec:  volumes:  - name: mongodb-data    gcePersistentDisk:      pdName: mongodb      fsType: ext4  containers:  - image: mongo    name:  mongodb    volumeMounts:    -  name: mongodb-data       mountPath: /data/db    ports:    - containerPort: 27017      protocol: TCP
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: mongodb
+spec:  
+  containers:  
+  - image: mongo    
+    name:  mongodb    
+    volumeMounts:    
+    -  name: mongodb-data       
+       mountPath: /data/db    
+    ports:    
+    - containerPort: 27017      
+      protocol: TCP
+  volumes:  
+  - name: mongodb-data    
+    gcePersistentDisk:      
+      pdName: mongodb      
+      fsType: ext4  
 ```
 
 - Pod 생성
@@ -267,7 +288,7 @@ Volumes:
 - 접속
 
 ```{bash}
-kubectl exec -it mongodb mongo
+kubectl exec -it mongodb -- mongo
 ```
 
 - 데이터 Insert
@@ -312,6 +333,8 @@ $ kubectl exec -it mongodb mongo
 ```{bash}
 $ kubectl delete po mongodb
 ```
+
+
 
 ###  PersistentVolume 및 PersistentVolumeClaim
 
@@ -414,6 +437,10 @@ $ kubectl exec -it mongodb -- mongo
 
 ```
 
+
+
+
+
 ###  Persistent Volume 의 동적 할당
 
 ####  StorageClass 를 이용해 스토리지 유형 정의
@@ -471,7 +498,7 @@ istiok8s  asia-northeast1-a  1.18.12-gke.1210  35.189.139.222  e2-medium     1.1
 - GCP 지원 디스크 종류 확인 하기
 
 ```{bash}
-gcloud compute disk-types list | grep asia-northeast1-a
+gcloud compute disk-types list | grep asia-northeast3-a
 
 local-ssd    asia-northeast1-a          375GB-375GB
 pd-balanced  asia-northeast1-a          10GB-65536GB
@@ -482,7 +509,14 @@ pd-standard  asia-northeast1-a          10GB-65536GB
 - Stroage Class 생성 (파일명 : sc.yaml)
 
 ```{yaml}
-apiVersion: storage.k8s.io/v1kind: StorageClassmetadata:  name: fastprovisioner: kubernetes.io/gce-pdparameters:  type: pd-ssd  zone: asia-northeast1-a  #클러스터를 만든 지역으로 설정 해야함
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+  zone: asia-northeast3-a  #클러스터를 만든 지역으로 설정 해야함
 ```
 
 ```{bash}
@@ -491,18 +525,18 @@ $ kubectl apply -f ./gce-sclass.yaml
 
 ####  Storage Class 이용한 PVC 생성
 
-- gce-pvc-sclass.yaml
+- gce-pvc-with-sclass.yaml
 
 ```{yaml}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-   name: mongodb-pvc
+   name: pvc-fast-10g
 spec:
   storageClassName: fast
   resources:
     requests:
-      storage: 100Mi
+      storage: 10Gi
   accessModes:
     - ReadWriteOnce
 ```
@@ -552,6 +586,22 @@ spec:
       claimName: mongodb-pvc
 ```
 
+
+
+### 연습문제
+
+- 아래와 같은 요건으로 Volume 구성 요소를 생성하세요
+
+| 종류                    | 이름                      | 요건                                                        |
+| ----------------------- | ------------------------- | ----------------------------------------------------------- |
+| Storage Class           | fast-ssd-retain-resizable | 회수정책: Retain / 생성 후 크기조정 : True                  |
+| Persistent Volume Claim | pvc-fast-10g-retain       | 용량 : 10G  / accessModes : [ReadWriteOnce , ReadOnlyMany ] |
+
+> allowVolumeExpansion: true 
+> reclaimPolicy: Retain
+
+
+
 ## ConfigMap
 
 ###  도커에서 매개변수 전달
@@ -588,9 +638,9 @@ chmod 755 fortuneloop.sh
 
 > Docker CMD 는 3가지 형태로 사용 가능 합니다.
 >
-> - CMD [ "실행파일" ,  "파라메터1" , "파라메터2" ] → **실행파일 형태**
-> - CMD [ "파라메터1" , "파라메터2"]  → **ENTRYPOINT 의 디펄트 파라메터**
+> - CMD [ "command" ,  "파라메터1" , "파라메터2" ] → **실행파일 형태**
 > - CMD command 파라메터1 파라매터2 → **쉘 명령어 형태**
+> - CMD [ "파라메터1" , "파라메터2"]  → **ENTRYPOINT 의 디펄트 파라메터**
 
 ```{bash}
 $ vi dockerfile
@@ -661,7 +711,7 @@ spec:
 kubectl apply -f ./config-fortune-indockeer-pod.yaml
 ```
 
-###   Yaml 파일을 통한 매개변수 전달
+###   Yaml 파일을 통한 매개변수 전달(환경변수)
 
 ####  fortuneloop.sh 작성
 
@@ -696,8 +746,8 @@ $ vi dockerfile
 FROM ubuntu:latest
 RUN apt-get update;  apt-get -y install fortune
 ADD fortuneloop.sh /bin/fortuneloop.sh
+RUN chmod 755 /bin/fortuneloop.sh
 ENTRYPOINT ["/bin/fortuneloop.sh"]
-CMD ["10"]  # args가 없으면 10초
 ```
 
 ```{bash}
@@ -1031,7 +1081,27 @@ ETag: W/"5e5e6a8f-264"
 - Yaml 파일 작성 : config-fortune-mapvol-pod2.yaml
 
 ```{yaml}
-apiVersion: v1kind: Podmetadata:  name: nginx-configvolspec:  containers:  - image: nginx:1.7.9    name: web-server    volumeMounts:    - name: config      mountPath: /etc/nginx/conf.d/default.conf      subPath: nginx-config.conf # 주의 : configmap 의 key 와 파일명이 일치 해야합니다.      readOnly: true    ports:    - containerPort: 8080      protocol: TCP  volumes:  - name: config    configMap:      name: fortune-config      defaultMode: 0660
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-configvol
+spec:
+  containers:
+  - image: nginx:1.7.9
+    name: web-server
+    volumeMounts:
+    - name: config
+      mountPath: /etc/nginx/conf.d/default.conf
+      subPath: nginx-config.conf # 주의 : configmap 의 key 와 파일명이 일치 해야합니다.
+      readOnly: true
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+  volumes:
+  - name: config
+    configMap:
+      name: fortune-config
+      defaultMode: 0660
 ```
 
 > nginx 1.7.9 이상 버전, 예를 들면 nginx:latest 로 하면 /etc/nginx/conf.d 폴더내에 default.conf 파일만 존재 합니다. Example_cat tssl.conf 파일은 없습니다. 테스트를 위해서 nginx:1.7.9 버전으로 설정 한것입니다.
@@ -1109,7 +1179,8 @@ cd ./secret/cert
 ```
 
 ```{bash}
-openssl genrsa -out https.key 2048openssl req -new -x509 -key https.key -out https.cert -days 360 -subj '/CN=*.acron.com'
+openssl genrsa -out https.key 2048 
+openssl req -new -x509 -key https.key -out https.cert -days 360 -subj '/CN=*.acron.com'
 ```
 
 ```{bash}
@@ -1123,7 +1194,21 @@ cd ./secret/configvi custom-nginx-config.conf
 ```
 
 ```{bash}
-server {	listen				8080;  listen				443 ssl;	server_name		www.acron.com;	ssl_certificate		certs/https.cert;	ssl_certificate_key	certs/https.key;	ssl_protocols		TLSv1 TLSv1.1 TLSv1.2;	ssl_ciphers		HIGH:!aNULL:!MD5;	gzip on;	gzip_types text/plain application/xml;	location / {		root	/usr/share/nginx/html;		index	index.html index.htm;	}}
+server {
+	listen				8080;
+  listen				443 ssl;
+	server_name		www.acron.com;
+	ssl_certificate		certs/https.cert;
+	ssl_certificate_key	certs/https.key;
+	ssl_protocols		TLSv1 TLSv1.1 TLSv1.2;
+	ssl_ciphers		HIGH:!aNULL:!MD5;
+	gzip on;
+	gzip_types text/plain application/xml;
+	location / {
+		root	/usr/share/nginx/html;
+		index	index.html index.htm;
+	}
+}
 ```
 
 ```{bash}
@@ -1140,7 +1225,50 @@ kubectl create cm fortune-config --from-file=./config
 - 파일명 : secret-pod.yaml
 
 ```{yaml}
-apiVersion: v1kind: Podmetadata:  name: fortune-httpsspec:  containers:  - image: dangtong/fortune:env    env:    - name: INTERVAL      valueFrom:        configMapKeyRef:          name: fortune-config          key: sleep-interval    name: html-generator    volumeMounts:    - name: html      mountPath: /var/htdocs  - image: nginx:alpine    name: web-server    volumeMounts:    - name: html      mountPath: /usr/share/nginx/html      readOnly: true    - name: config # 추가      mountPath: /etc/nginx/conf.d      readOnly: true    - name: certs # 추가      mountPath: /etc/nginx/certs/      readOnly: true    ports:    - containerPort: 80    - containerPort: 443 # 추가  volumes:  - name: html    emptyDir: {}  - name: config # 추가    configMap:      name: fortune-config      items:      - key: custom-nginx-config.conf        path: https.conf  - name: certs  #추가    secret:      secretName: fortune-https
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fortune-https
+spec:
+  containers:
+  - image: dangtong/fortune:env
+    env:
+    - name: INTERVAL
+      valueFrom:
+        configMapKeyRef:
+          name: fortune-config
+          key: sleep-interval
+    name: html-generator
+    volumeMounts:
+    - name: html
+      mountPath: /var/htdocs
+  - image: nginx:alpine
+    name: web-server
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+      readOnly: true
+    - name: config # 추가
+      mountPath: /etc/nginx/conf.d
+      readOnly: true
+    - name: certs # 추가
+      mountPath: /etc/nginx/certs/
+      readOnly: true
+    ports:
+    - containerPort: 80
+    - containerPort: 443 # 추가
+  volumes:
+  - name: html
+    emptyDir: {}
+  - name: config # 추가
+    configMap:
+      name: fortune-config
+      items:
+      - key: custom-nginx-config.conf
+        path: https.conf
+  - name: certs  #추가
+    secret:
+      secretName: fortune-https
 ```
 
 ```{bash}
@@ -1204,20 +1332,26 @@ spec:
 >     study.acorn.com -> 211.231.99.250 (A record)
 >     ```
 >
->     ```{bah}
->                 
->     ```
->
->
->     mysql.acorn.com -> 211.231.99.250 (A record) 직접통신
->     ```
+> 
 
 ####   볼륨 구성
 
 파일명 : mysql-pvc.yaml
 
 ```{yaml}
-apiVersion: v1kind: PersistentVolumeClaimmetadata:  name: mysql-pv-claim  labels:    app: wordpressspec:  accessModes:    - ReadWriteOnce  resources:    requests:      storage: 20Gi
+### 확인필요
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:  
+  name: mysql-pv-claim  
+  labels:    
+    app: wordpress
+spec:  
+  accessModes:    
+  - ReadWriteOnce  
+  resources:    
+    requests:      
+      storage: 20Gi
 ```
 
 ####   Pod 구성

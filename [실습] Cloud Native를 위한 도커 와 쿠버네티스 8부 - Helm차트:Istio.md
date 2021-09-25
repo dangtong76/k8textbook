@@ -777,11 +777,9 @@ kubectl label namespace default istio-injection=enabled -
 
 
 
-<<<<<<< HEAD:[실습] Cloud Native를 위한 도커 와 쿠버네티스 8부 - Helm차트:Istio.md
-=======
-# 3. 로컬  k8s 클러스터 설치 
+## 로컬  k8s 클러스터 설치 
 
-## 3.1 Vagrant 설치 
+### Vagrant 설치 
 
 https://www.vagrantup.com/downloads 에서 운영체제 버전에 맞는 Vagrant 를 설치 합니다.
 
@@ -796,4 +794,3 @@ https://www.vagrantup.com/downloads 에서 운영체제 버전에 맞는 Vagrant
 >* kubectl (https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 >* git (https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 
->>>>>>> b00306cc139b25b71f4c2a8e53720fa5e25abd4b:Istio_Docker_Add.md
