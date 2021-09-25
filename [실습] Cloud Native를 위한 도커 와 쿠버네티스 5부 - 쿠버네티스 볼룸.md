@@ -1414,6 +1414,8 @@ kubectl apply -f ./mysql-deploy.yaml
 
 ####  LoadBalancer 구성
 
+파일명 : wordpress-svc.yaml
+
 ```{yaml}
 apiVersion: v1
 kind: Service
@@ -1432,6 +1434,8 @@ spec:
 
 ####  PVC 구성
 
+파일명  : wordpress-pvc.yaml
+
 ```{yaml}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -1448,6 +1452,8 @@ spec:
 ```
 
 ####  WordPress 구성
+
+파일명 : wordpress-deploy.yaml
 
 ```{yaml}
 apiVersion: apps/v1
