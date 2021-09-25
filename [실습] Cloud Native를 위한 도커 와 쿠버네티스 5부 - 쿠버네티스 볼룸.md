@@ -1339,18 +1339,17 @@ spec:
 파일명 : mysql-pvc.yaml
 
 ```{yaml}
-### 확인필요
 apiVersion: v1
 kind: PersistentVolumeClaim
-metadata:  
-  name: mysql-pv-claim  
-  labels:    
+metadata:
+  name: mysql-pv-claim
+  labels:
     app: wordpress
-spec:  
-  accessModes:    
-  - ReadWriteOnce  
-  resources:    
-    requests:      
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
       storage: 20Gi
 ```
 
